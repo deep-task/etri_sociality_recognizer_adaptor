@@ -43,10 +43,6 @@ class ImageTransmitter(Thread):
         rospy.Subscriber('Color_Image', Image, callback=self.image_cb)
 
     def image_cb(self, msg):
-        diff = rospy.Time.now() - msg.header.stamp        
-        if diff.secs != 0 or abs(diff.nsecs) > 100000000:
-            return
-
         try:
             bridge = CvBridge()
             frame = bridge.imgmsg_to_cv2(msg, "bgr8")

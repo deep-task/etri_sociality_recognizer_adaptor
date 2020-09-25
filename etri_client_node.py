@@ -24,6 +24,7 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import String
 from cv_bridge import CvBridge, CvBridgeError
 
+DEBUG = False
 
 class ImageTransmitter(Thread):
     def __init__(self):
@@ -48,9 +49,9 @@ class ImageTransmitter(Thread):
             frame = bridge.imgmsg_to_cv2(msg, "bgr8")
             self.img_cb(frame)
 
-            cv2.imshow('image', frame)
-
-            cv2.waitKey(1)
+            if DEBUG is True:
+                cv2.imshow('image', frame)
+                cv2.waitKey(1)
         except CvBridgeError as e:
             rospy.logerr(e)
 

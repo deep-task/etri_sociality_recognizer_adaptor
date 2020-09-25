@@ -89,7 +89,7 @@ class ImageTransmitter(Thread):
                 else:
                     result = data.decode()
                     print('DATA: ' + result)
-                    if len(result) > 1:
+                    if len(result) > 1 and 'call' != result:
                         self.publish_results(result)
             except:
                 rospy.logerr('Exception@run')

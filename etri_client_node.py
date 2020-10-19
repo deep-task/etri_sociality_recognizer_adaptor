@@ -88,9 +88,11 @@ class ImageTransmitter(Thread):
                     print('Disconnected by ' + self.addr[0], ':', self.addr[1])
                     break
                 else:
-                    result = data.decode()
+                    result = data.decode().strip()
                     print('DATA: ' + result)
                     if len(result) > 1 and 'call' != result:
+                        if result.endswith("call"):
+                            result = result[:-4]
                         self.publish_results(result)
             except:
                 rospy.logerr('Exception@run')

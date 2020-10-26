@@ -92,6 +92,8 @@ class ImageTransmitter(Thread):
                     if len(result) > 1 and 'call' != result:
                         if result.endswith("call"):
                             result = result[:-4]
+                        if result.startswith("call"):
+                            result = result[4:]
                         print('Published Msg: ' + result)
                         self.publish_results(result)
             except:

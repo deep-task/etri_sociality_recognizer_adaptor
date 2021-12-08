@@ -39,6 +39,8 @@ class ImageTransmitter(Thread):
         self.connected_lock = Lock()
         self.exit_ = False
         self.exit_lock = Lock()
+        self.img_string = None
+        self.img_lock = Lock()
 
         self.pub_recog = rospy.Publisher('recognitionResult', String, queue_size=1)
         rospy.Subscriber('Color_Image', Image, callback=self.image_cb)
@@ -89,16 +91,25 @@ class ImageTransmitter(Thread):
                     break
                 else:
                     result = data.decode().strip()
+                    call_received = False
                     if len(result) > 1:
                         if 'call' != result:
                             if result.endswith("call"):
                                 result = result[:-4]
+                                call_received = True
                             if result.startswith("call"):
                                 result = result[4:]
+                                call_received = True
                             print('Published Msg: ' + result)
                             self.publish_results(result)
                         else:
                             print('call received')
+                            call_received = True
+                    if call_received is True:
+                        with self.img_lock:
+                            if self.img_string is not None:
+                                self.client_socket.send(str(len(self.img_string)).ljust(16).encode())
+                                self.client_socket.send(self.img_string)
             except:
                 rospy.logerr('Exception@run')
                 break
@@ -118,8 +129,8 @@ class ImageTransmitter(Thread):
             data = np.array(imgencode)
             stringData = data.tostring()
 
-            self.client_socket.send(str(len(stringData)).ljust(16).encode())
-            self.client_socket.send(stringData)
+            with self.img_lock:
+                self.img_string = stringData
         except:
             rospy.logerr("Exception@img_cb")
             pass
